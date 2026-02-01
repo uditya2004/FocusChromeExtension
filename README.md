@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎯 Focus Mode Extension
+# Focus Mode Extension
 
 **A lightweight Chrome/Brave extension to block distracting websites during focus sessions.**
 
