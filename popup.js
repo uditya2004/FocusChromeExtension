@@ -5,8 +5,7 @@ const domainError = document.getElementById("domainError");
 const tabList = document.getElementById("tabList");
 const addTabsButton = document.getElementById("addTabs");
 const statusEl = document.getElementById("status");
-const startBlockButton = document.getElementById("startBlock");
-const stopBlockButton = document.getElementById("stopBlock");
+const toggleBlockButton = document.getElementById("toggleBlock");
 
 const STORAGE_KEYS = {
   allowed: "allowedDomains",
@@ -30,6 +29,10 @@ function renderStatus(isBlocking) {
   const indicator = statusEl.querySelector(".status-indicator");
   indicator.textContent = isBlocking ? "Active" : "Inactive";
   indicator.dataset.state = isBlocking ? "active" : "inactive";
+  
+  // Update toggle button
+  toggleBlockButton.textContent = isBlocking ? "Stop Block" : "Start Block";
+  toggleBlockButton.classList.toggle("danger", isBlocking);
 }
 
 function renderAllowedList(domains) {
@@ -162,6 +165,23 @@ async function updateBlockingState(isBlocking) {
   renderStatus(isBlocking);
 }
 
+async function startBlocking() {
+  // Add selected tabs to whitelist before starting
+  const checkboxes = tabList.querySelectorAll("input[type='checkbox']:checked");
+  const selected = Array.from(new Set([...checkboxes].map((checkbox) => checkbox.value)));
+
+  if (selected.length > 0) {
+    const { allowedDomains } = await getStoredState();
+    const updated = Array.from(new Set([...allowedDomains, ...selected])).sort();
+    await saveAllowedDomains(updated);
+    renderAllowedList(updated);
+    checkboxes.forEach((checkbox) => (checkbox.checked = false));
+  }
+
+  // Start blocking
+  await updateBlockingState(true);
+}
+
 async function initialize() {
   const { allowedDomains, isBlocking } = await getStoredState();
   renderAllowedList(allowedDomains);
@@ -177,7 +197,13 @@ domainInput.addEventListener("keydown", (event) => {
 });
 
 addTabsButton.addEventListener("click", addSelectedTabs);
-startBlockButton.addEventListener("click", () => updateBlockingState(true));
-stopBlockButton.addEventListener("click", () => updateBlockingState(false));
+toggleBlockButton.addEventListener("click", async () => {
+  const { isBlocking } = await getStoredState();
+  if (isBlocking) {
+    await updateBlockingState(false);
+  } else {
+    await startBlocking();
+  }
+});
 
 initialize();

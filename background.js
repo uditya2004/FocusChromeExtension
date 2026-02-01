@@ -3,44 +3,23 @@ const STORAGE_KEYS = {
   blocking: "isBlocking",
 };
 
-function normalizeDomain(hostname) {
-  return hostname.replace(/^www\./, "").toLowerCase();
-}
+const ICONS = {
+  default: {
+    16: "icons/icon16.png",
+    48: "icons/icon48.png",
+    128: "icons/icon128.png",
+  },
+  active: {
+    16: "icons/icon16-active.png",
+    48: "icons/icon48-active.png",
+    128: "icons/icon128-active.png",
+  },
+};
 
-function isDomainAllowed(hostname, allowedDomains) {
-  const normalized = normalizeDomain(hostname);
-  return allowedDomains.some((domain) => {
-    const normalizedDomain = normalizeDomain(domain);
-    return normalized === normalizedDomain || normalized.endsWith(`.${normalizedDomain}`);
+function updateIcon(isBlocking) {
+  chrome.action.setIcon({
+    path: isBlocking ? ICONS.active : ICONS.default,
   });
-}
-
-async function handleNavigation(details) {
-  if (details.frameId !== 0) return;
-  if (!details.url.startsWith("http")) return;
-
-  const blockedPage = chrome.runtime.getURL("blocked.html");
-  if (details.url.startsWith(blockedPage)) return;
-
-  const data = await chrome.storage.sync.get([STORAGE_KEYS.allowed, STORAGE_KEYS.blocking]);
-  const allowedDomains = data[STORAGE_KEYS.allowed] ?? [];
-  const isBlocking = data[STORAGE_KEYS.blocking] ?? false;
-
-  if (!isBlocking) return;
-
-  let hostname = "";
-  try {
-    hostname = new URL(details.url).hostname;
-  } catch (error) {
-    return;
-  }
-
-  if (!hostname) return;
-
-  if (!isDomainAllowed(hostname, allowedDomains)) {
-    const target = `${blockedPage}?blocked=${encodeURIComponent(hostname)}`;
-    chrome.tabs.update(details.tabId, { url: target });
-  }
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -51,9 +30,14 @@ chrome.runtime.onInstalled.addListener(() => {
     if (typeof data[STORAGE_KEYS.blocking] !== "boolean") {
       chrome.storage.sync.set({ [STORAGE_KEYS.blocking]: false });
     }
+    // Set initial icon state
+    updateIcon(data[STORAGE_KEYS.blocking] ?? false);
   });
 });
 
-chrome.webNavigation.onCommitted.addListener(handleNavigation, {
-  url: [{ schemes: ["http", "https"] }],
+// Listen for storage changes to update icon
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === "sync" && changes[STORAGE_KEYS.blocking]) {
+    updateIcon(changes[STORAGE_KEYS.blocking].newValue);
+  }
 });
