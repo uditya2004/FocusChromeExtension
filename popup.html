@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Focus Mode Extension</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="card">
+      <header class="header">
+        <div>
+          <h1>Focus Mode Extension</h1>
+          <p class="status" id="status">Status: <span class="status-indicator" data-state="inactive">Inactive</span></p>
+        </div>
+      </header>
+
+      <section class="section">
+        <h2>Allowed websites</h2>
+        <ul class="list" id="allowedList"></ul>
+        <div class="input-row">
+          <input id="domainInput" type="text" placeholder="Add website domain" />
+          <button id="addDomain" class="btn">Add</button>
+        </div>
+        <p class="hint" id="domainError"></p>
+      </section>
+
+      <section class="section">
+        <h2>Quick add from current tabs</h2>
+        <div class="quick-add" id="tabList"></div>
+        <button id="addTabs" class="btn secondary">Add selected tabs</button>
+      </section>
+
+      <section class="section actions">
+        <button id="startBlock" class="btn">Start Block</button>
+        <button id="stopBlock" class="btn secondary">Stop Block</button>
+      </section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

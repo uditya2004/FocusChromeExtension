@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Focus Mode Extension",
+  "version": "1.0.0",
+  "description": "Block non-whitelisted websites during focus sessions.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Focus Mode"
+  },
+  "permissions": ["storage", "tabs", "webNavigation"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
