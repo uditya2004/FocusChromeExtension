@@ -41,3 +41,10 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     updateIcon(changes[STORAGE_KEYS.blocking].newValue);
   }
 });
+
+// Listen for messages from content script
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message.action === "closeTab" && sender.tab) {
+    chrome.tabs.remove(sender.tab.id);
+  }
+});

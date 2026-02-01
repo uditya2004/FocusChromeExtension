@@ -31,7 +31,7 @@ function createOverlay(hostname) {
       <h1 class="focus-overlay-title">Website Blocked</h1>
       <p class="focus-overlay-message"><strong>${hostname}</strong> is blocked while focus mode is active.</p>
       <p class="focus-overlay-hint">Stay focused! You can manage allowed websites in the extension popup.</p>
-      <button class="focus-overlay-btn" id="focus-go-back">Go Back</button>
+      <button class="focus-overlay-btn" id="focus-close-tab">Close Tab</button>
     </div>
   `;
 
@@ -133,8 +133,8 @@ function createOverlay(hostname) {
   document.documentElement.appendChild(style);
   document.documentElement.appendChild(overlayElement);
 
-  document.getElementById("focus-go-back").addEventListener("click", () => {
-    history.back();
+  document.getElementById("focus-close-tab").addEventListener("click", () => {
+    chrome.runtime.sendMessage({ action: "closeTab" });
   });
 
   // Prevent scrolling on the page
